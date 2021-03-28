@@ -10,11 +10,15 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from time import sleep
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+import re
 
 
 class Scraping():
-    url_dafiti = 'https://www.dafiti.com.br/bolsas-e-acessorios-femininos/bolsas/santa-lolla/?sort=popularity'
-    url_zattini = 'https://www.zattini.com.br/refactoring/acessorios/feminino?mi=ztt_hm_fem_cat3_bolsaseacessorios&psn=Banner_BarradeCategorias_3fem&fc=barradecategorias&marca=santa-lolla&nsCat=Artificial&sort=relevance&tipo-de-produto=bolsas'
+    # url_dafiti = 'https://www.dafiti.com.br/bolsas-e-acessorios-femininos/bolsas/santa-lolla/?sort=popularity'
+    # url_zattini = 'https://www.zattini.com.br/refactoring/acessorios/feminino?mi=ztt_hm_fem_cat3_bolsaseacessorios&psn=Banner_BarradeCategorias_3fem&fc=barradecategorias&marca=santa-lolla&nsCat=Artificial&sort=relevance&tipo-de-produto=bolsas'
+    url_dafiti = 'https://www.dafiti.com.br/calcados-masculinos/tenis-para-corrida/adidas--adidas-originals--adidas-performance/?cat-pwa=0&campwa=0'
+    url_zattini = 'https://www.zattini.com.br/adidas?mi=ztt_mntop_ESP-MC-adidas&psn=Menu_Top&genero=masculino&tipo-de-produto=tenis&tipo-de-produto=tenis-performance'
+    
     all_products = []
 
     def scraping_dafiti():
@@ -75,29 +79,48 @@ class Scraping():
                     preco_original = div_precos.find_element_by_class_name('product-box-price-from').text
                 except:
                     preco_original = 0.00
+
                 try:
                     preco_promocional = div_precos.find_element_by_class_name('product-box-price-to').text     
                 except:
                     preco_promocional = 0.00
                 
                 if preco_promocional != 0:    
-                    tp_promocao = 'Oferta'
+                    promocao = True
                 else:
-                    tp_promocao = 'Sem promoçao'
+                    promocao = False
+                
+                if type(preco_original) == str:
+                    if preco_original:
+                        preco_original = re.sub('[^0-9]', '', preco_original)
+                        preco_original = float(int(preco_original)/100)
+                    else:
+                        preco_original = 0
+                else:
+                    preco_original = float(preco_original)
+
+                if type(preco_promocional) == str:
+                    if preco_promocional:
+                        preco_promocional = re.sub('[^0-9]', '', preco_promocional)
+                        preco_promocional = float(int(preco_promocional)/100)
+                    else:
+                        preco_promocional = 0
+                else:
+                    preco_promocional = preco_promocional
                 
                 product = {
                     'descricao': descricao,
                     'preco_original': preco_original,
                     'preco_promocional': preco_promocional,
                     'link_produto': link_produto,
-                    'tp_promocao': tp_promocao,
+                    'promocao': promocao,
                     'link_img_produto': link_img_produto,
                     'marca': marca,
                     'status': True,
                     'loja': loja
                 }
-        
-                Scraping.all_products.append(product)
+                if preco_original != 0:
+                    Scraping.all_products.append(product)
         return Scraping.all_products
 
     def scraping_zattini():
@@ -147,45 +170,55 @@ class Scraping():
                 link_produto = product.find_element_by_class_name('item-card__images__image-link').get_attribute('href')
                 link_img_produto = product.find_element_by_class_name('item-card__images__image-link').find_element_by_tag_name('img').get_attribute('src')
                 loja = 'Zattini'
-        
+
                 try:
-                    preco_original = product.find_element_by_class_name('pr')
-                    preco_original = preco_original.find_element_by_tag_name('del').text
+                    preco_original = product.find_element_by_tag_name('del').text
+                    preco_promocional = product.find_element_by_class_name('haveInstallments').get_attribute('content')
                 except:
-                    preco_original = 0.00 
-        
-                try:
-                    preco_promocional = product.find_element_by_class_name('full-mounted-price')
-                    preco_promocional = preco_promocional.find_element_by_class_name('haveInstallments').text
-                except:
-                    preco_promocional = 0.00
+                    try:
+                        preco_original = product.find_element_by_class_name('haveInstallments').get_attribute('content')
+                        preco_promocional = 0.00 
+                    except:
+                        preco_original = 0.00
+                        preco_promocional = 0.00
                     
-                if preco_original != 0:    
-                    tp_promocao = 'Oferta'
+                if preco_promocional == 0:
+                    promocao = False
                 else:
-                    tp_promocao = 'Sem promoçao'
-                    preco_original = preco_promocional
-                    preco_promocional = 0.00
-        
+                    promocao = True
+
+                if type(preco_promocional) == str:
+                    preco_promocional = re.sub('[^0-9]', '', preco_promocional)
+                    preco_promocional = float(int(preco_promocional)/100)
+                else:
+                    preco_promocional = preco_promocional
+                
+                if type(preco_original) == str:
+                    preco_original = re.sub('[^0-9]', '', preco_original)
+                    preco_original = float(int(preco_original)/100)
+                else:
+                    preco_original = preco_original
+
                 product = {
                     'descricao': descricao,
                     'preco_original': preco_original,
                     'preco_promocional': preco_promocional,
                     'link_produto': link_produto,
-                    'tp_promocao': tp_promocao,
+                    'promocao': promocao,
                     'link_img_produto': link_img_produto,
                     'marca': marca,
                     'status': True,
                     'loja': loja
                 }
-                if preco_original !=0:   
+                if preco_original != 0:   
                     Scraping.all_products.append(product)
         return Scraping.all_products
 
 
     def get_all_products():
-        all_products = Scraping.scraping_zattini() + Scraping.scraping_dafiti()
+        print('ok')
+        all_products = Scraping.scraping_dafiti() + Scraping.scraping_zattini()
         return all_products
-
+# Scraping.get_all_products()
 
     
