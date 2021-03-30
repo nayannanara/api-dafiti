@@ -15,7 +15,6 @@ class Produto(TimeStampedModel):
     status = models.BooleanField(default=False, verbose_name=_("Ativo?"))
     marca = models.CharField(_("Marca"), max_length=25, null=False, blank=False)
     loja = models.CharField(_("Loja"), max_length=25, null=False, blank=False)
-    qtd_vezes = models.IntegerField(_("Quantidade de vezes da mudança do preço"), default=0)
 
 
     class Meta:
@@ -28,9 +27,11 @@ class Produto(TimeStampedModel):
     
 class CompareProduto(TimeStampedModel):
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE, related_name="compare", null=True)
-    preco_produto =  models.DecimalField(_("Preço do produto"),max_digits=10, decimal_places=2)
+    preco_produto =  models.DecimalField(_("Preço do produto"),max_digits=10, decimal_places=2,null=True)
     loja = models.CharField(_("Loja"), max_length=25, null=False, blank=False)
     promocao = models.BooleanField(default=False, verbose_name=_("Possui Promoção?"))
+    comparado = models.BooleanField(default=False, verbose_name=_("Houve comparação?"), null=True, blank=True)
+    session_key = models.CharField('Chave da sessão', max_length=40, db_index=True, null=True)
 
 
     class Meta:
@@ -38,3 +39,15 @@ class CompareProduto(TimeStampedModel):
 
     def __str__(self):
         return self.produto.descricao  
+
+class ContadorLoja(TimeStampedModel):
+    loja = models.CharField(_("Loja"), max_length=25, null=False, blank=False)
+    qtd_vezes = models.IntegerField(_("Quantidade de vezes que a loja foi mais barata"), default=0)
+
+
+    class Meta:
+        verbose_name = "Contador Loja"
+
+    def __str__(self):
+        return self.loja  
+
