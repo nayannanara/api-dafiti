@@ -17,11 +17,14 @@ from django.contrib import admin
 from django.conf.urls import url
 from django.urls import path, include
 from rest_framework import routers
-from core.api.viewsets import ProdutoViewSet, CompareProdutoViewSet
+from core.api.viewsets import ProdutoViewSet, CompareProdutoViewSet, PromocaoLojaViewSet, ComparacaoViewSet, ConcorrenciaLojaViewSet
 
 router = routers.DefaultRouter()
 router.register(r'produtos', ProdutoViewSet,basename='produtos')
 router.register(r'compare-produtos', CompareProdutoViewSet,basename='compare-produtos')
+router.register(r'promocao-loja', PromocaoLojaViewSet,basename='promocao-loja')
+router.register(r'comparacao', ComparacaoViewSet,basename='comparacao')
+router.register(r'concorrencia-loja', ConcorrenciaLojaViewSet,basename='concorrencia-loja')
 
 urlpatterns = [
     path('', include(router.urls)),
