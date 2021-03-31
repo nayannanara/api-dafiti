@@ -11,6 +11,7 @@ from selenium.webdriver.chrome.options import Options
 from time import sleep
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import re
+from decouple import config
 
 
 class Scraping():
@@ -23,11 +24,14 @@ class Scraping():
 
     def scraping_dafiti():
         chrome_options = Options()
+        chrome_options.binary_location = config('GOOGLE_CHROME_BIN')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--headless')
         
-        driver = webdriver.Chrome(executable_path='./core/scraping/chromedriver', options=chrome_options)
+        driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), options=chrome_options)
+        
+        # driver = webdriver.Chrome(executable_path='./core/scraping/chromedriver', options=chrome_options)
         # driver = webdriver.Remote(
         #     command_executor="http://selenium:4444/wd/hub",
         #     desired_capabilities=DesiredCapabilities.FIREFOX
@@ -125,11 +129,12 @@ class Scraping():
 
     def scraping_zattini():
         chrome_options = Options()
+        chrome_options.binary_location = config('GOOGLE_CHROME_BIN')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--headless')
         
-        driver = webdriver.Chrome(executable_path='./core/scraping/chromedriver', options=chrome_options)
+        driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), options=chrome_options)
         # driver = webdriver.Remote(
         #     command_executor="http://selenium:4444/wd/hub",
         #     desired_capabilities=DesiredCapabilities.FIREFOX
