@@ -135,7 +135,7 @@ class Scraping():
         chrome_options.add_argument('--headless')
         
         # driver = webdriver.Chrome(executable_path='./core/scraping/chromedriver', options=chrome_options)
-        # driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), options=chrome_options)
+        driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), options=chrome_options)
         # driver = webdriver.Remote(
         #     command_executor="http://selenium:4444/wd/hub",
         #     desired_capabilities=DesiredCapabilities.FIREFOX
