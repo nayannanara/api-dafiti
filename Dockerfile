@@ -6,8 +6,8 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /code
 
 RUN python -m pip install --upgrade pip
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+COPY requirements-dev.txt .
+RUN pip install -r requirements-dev.txt
 # RUN apt-get -y install cron
 
 COPY . .
