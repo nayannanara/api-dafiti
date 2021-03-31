@@ -40,11 +40,14 @@ INSTALLED_APPS = [
     'django_crontab',
     'rest_framework',
     'django_filters',
+    'drf_yasg',
+    'corsheaders',
     #apps
     'core',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -59,7 +62,7 @@ ROOT_URLCONF = 'dafiti_challenge.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/"templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -138,3 +141,9 @@ STATIC_URL = '/static/'
 CRONJOBS = [
     ('*/60 * * * *', 'core.cron.scraping')
 ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+]
+
+# NOIE: remove this in production
+CORS_ALLOW_ALL_ORIGINS = True

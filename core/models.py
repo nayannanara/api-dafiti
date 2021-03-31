@@ -26,9 +26,9 @@ class Produto(TimeStampedModel):
     
     
 class CompareProduto(TimeStampedModel):
-    produto = models.ForeignKey(Produto, on_delete=models.CASCADE, related_name="compare", null=True)
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE, related_name="compare", null=False)
     preco_produto =  models.DecimalField(_("Preço do produto"),max_digits=10, decimal_places=2,null=True)
-    loja = models.CharField(_("Loja"), max_length=25, null=False, blank=False)
+    loja = models.CharField(_("Loja"), max_length=25, null=True, blank=False)
     promocao = models.BooleanField(default=False, verbose_name=_("Possui Promoção?"))
     comparado = models.BooleanField(default=False, verbose_name=_("Houve comparação?"), null=True, blank=True)
     session_key = models.CharField('Chave da sessão', max_length=40, db_index=True, null=True)

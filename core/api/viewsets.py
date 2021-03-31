@@ -13,9 +13,9 @@ from rest_framework.response import Response
 from django.db.models import Count, Min, Max
 import copy
 
-class ProdutoViewSet(viewsets.ReadOnlyModelViewSet):
+class ProdutoViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
     """
-        Listagem de produtos
+        Listagem de tênis das lojas Dafiti e Zattini
     """
     queryset = Produto.objects.all().order_by('id')
     serializer_class = ProdutoSerializer
@@ -28,6 +28,7 @@ class CompareProdutoViewSet(mixins.CreateModelMixin,
                    viewsets.GenericViewSet):
     """
         Compare preços entre os produtos
+        :produto - único campo obrigatorio
     """
     serializer_class = CompareProdutoSerializer
 
@@ -85,7 +86,7 @@ class CompareProdutoViewSet(mixins.CreateModelMixin,
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class PromocaoLojaViewSet(viewsets.ReadOnlyModelViewSet):
+class PromocaoLojaViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
     """
         Qual loja tem mais promoção
     """
@@ -96,7 +97,7 @@ class PromocaoLojaViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset
 
 
-class ComparacaoViewSet(viewsets.ReadOnlyModelViewSet):
+class ComparacaoViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
     """
         Comparação de produtos escolhidos
     """
@@ -119,9 +120,10 @@ class ComparacaoViewSet(viewsets.ReadOnlyModelViewSet):
             return queryset
         return queryset 
 
-class ConcorrenciaLojaViewSet(viewsets.ReadOnlyModelViewSet):        
+class ConcorrenciaLojaViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
     """
         Listagem de concorrência entre as lojas
+        :qtd_vezes - campo se refere a quantas vezes essa loja esteve mais barata que a outra
     """
 
     queryset = ContadorLoja.objects.all().order_by('id')

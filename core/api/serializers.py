@@ -5,7 +5,7 @@ class ProdutoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Produto
-        fields = ("id","descricao", "preco_original", "preco_promocional", "promocao", "marca", "loja")
+        fields = ("id","descricao", "preco_original", "preco_promocional", "promocao", "marca", "loja", "link_produto", "link_img_produto")
         
 class ProdutoListSerializer(serializers.ModelSerializer):
 
