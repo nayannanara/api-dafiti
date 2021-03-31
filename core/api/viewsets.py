@@ -17,7 +17,7 @@ class ProdutoViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
     """
         Listagem de tênis das lojas Dafiti e Zattini
     """
-    queryset = Produto.objects.all().order_by('id')
+    queryset = Produto.objects.all().order_by('preco_original')
     serializer_class = ProdutoSerializer
     filter_class = ProdutoFilterSet
 
