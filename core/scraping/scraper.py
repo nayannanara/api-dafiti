@@ -134,14 +134,13 @@ class Scraping():
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--headless')
         
-        driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), options=chrome_options)
+        # driver = webdriver.Chrome(executable_path='./core/scraping/chromedriver', options=chrome_options)
+        # driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), options=chrome_options)
         # driver = webdriver.Remote(
         #     command_executor="http://selenium:4444/wd/hub",
         #     desired_capabilities=DesiredCapabilities.FIREFOX
         # )
-        # driver.get(Scraping.url_zattini)
-        sleep(3)
-        
+        driver.get(Scraping.url_zattini)
         ul_pag = driver.find_element_by_class_name('pagination').find_elements_by_tag_name('a')[-2].text
         num_page = []
         
