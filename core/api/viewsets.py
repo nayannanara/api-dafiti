@@ -1,23 +1,29 @@
-from core.models import Produto, CompareProduto, ContadorLoja
-from core.api.filters import ProdutoFilterSet, CompareProdutoFilterSet
-from .serializers import (
-    ProdutoSerializer, 
-    CompareProdutoListSerializer, 
-    CompareProdutoSerializer, 
-    PromocaoLojaSerializer,
-    ComparacaoSerializer, 
-    ConcorrenciaLojaSerializer
-)
-from rest_framework import status, viewsets, mixins
-from rest_framework.response import Response
-from django.db.models import Count, Min, Max
 import copy
+
+from core.api.filters import CompareProdutoFilterSet, ProdutoFilterSet
+from core.models import CompareProduto, ContadorLoja, Produto
+from django.db.models import Count, Max, Min
+from rest_framework import mixins, status, viewsets
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+
+from .serializers import (
+    ComparacaoSerializer,
+    CompareProdutoListSerializer,
+    CompareProdutoSerializer,
+    ConcorrenciaLojaSerializer,
+    ProdutoSerializer,
+    PromocaoLojaSerializer,
+)
+
 
 class ProdutoViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
     """
         Listagem de tênis das lojas Dafiti e Zattini
     """
-    queryset = Produto.objects.all().order_by('preco_original')
+    paginator = PageNumberPagination()
+    paginator.page_size = 20
+    queryset = Produto.objects.filter(status=True).order_by('preco_original')
     serializer_class = ProdutoSerializer
     filter_class = ProdutoFilterSet
 
@@ -33,12 +39,10 @@ class CompareProdutoViewSet(mixins.CreateModelMixin,
     serializer_class = CompareProdutoSerializer
 
     def get_queryset(self):
-        if self.request.session.get('lista') is None:
-            self.request.session['lista'] = {}
-
-        self.compare_list = self.request.session['lista']
-        self.session = self.request.session
-        session_key = self.request.session.session_key
+        if 'session_key' in self.request.GET:
+            session_key = self.request.GET['session_key']
+        else:
+            session_key = self.request.session.session_key
         queryset = CompareProduto.objects.filter(session_key=session_key)
         return queryset
 
@@ -53,12 +57,6 @@ class CompareProdutoViewSet(mixins.CreateModelMixin,
         return serializer_map.get(self.action, super().get_serializer_class())
     
     def create(self, request, *args, **kwargs):
-
-        if request.session.get('lista') is None:
-            request.session['lista'] = {}
-
-        self.compare_list = request.session['lista']
-        self.session = request.session
 
         data = request.data.copy()
         produto = data['produto']
@@ -75,7 +73,7 @@ class CompareProdutoViewSet(mixins.CreateModelMixin,
             preco_produto = preco_produto
             promocao = False
 
-        data['session_key'] = self.session.session_key
+        data['session_key'] = data['session_key']
         data['preco_produto'] = preco_produto
         data['promocao'] = promocao
         data['loja'] = loja
@@ -104,7 +102,12 @@ class ComparacaoViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
     serializer_class = ComparacaoSerializer
 
     def get_queryset(self):
-        session_key = self.request.session.session_key
+
+        if 'session_key' in self.request.GET:
+            session_key = self.request.GET['session_key']
+        else:
+            session_key = self.request.session.session_key
+
         queryset = CompareProduto.objects.raw(
             f'''select loja, MIN(preco_produto) OVER (PARTITION BY preco_produto), promocao, produto_id, id
             from core_compareproduto
@@ -115,7 +118,7 @@ class ComparacaoViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
         try:
             for dado in queryset: dado.loja
             ConcorrenciaLojaViewSet.contador_loja(dado.loja)
-            self.request.session.flush()
+            # self.request.session.flush()
         except:
             return queryset
         return queryset 
@@ -126,7 +129,7 @@ class ConcorrenciaLojaViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
         :qtd_vezes - campo se refere a quantas vezes essa loja esteve mais barata que a outra
     """
 
-    queryset = ContadorLoja.objects.all().order_by('id')
+    queryset = ContadorLoja.objects.all().order_by('qtd_vezes')
     serializer_class = ConcorrenciaLojaSerializer
 
     def contador_loja(loja):
